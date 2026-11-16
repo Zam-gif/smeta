@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Смета за 5 минут</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div>
+        <h1>Смета за 5 минут</h1>
+        <p class="sub">Заполните поля — суммы посчитаются сами. Всё сохраняется в этом браузере.</p>
+      </div>
+      <div class="topbar-actions">
+        <button type="button" class="btn btn-ghost" id="btn-example">Заполнить пример</button>
+        <button type="button" class="btn btn-ghost" id="btn-new">Новый документ</button>
+      </div>
+    </header>
+
+    <main>
+      <!-- 1. Документ -->
+      <section class="card" aria-labelledby="h-doc">
+        <h2 id="h-doc">Документ</h2>
+
+        <div class="seg" role="radiogroup" aria-label="Тип документа">
+          <label><input type="radio" name="docType" value="kp"><span>КП клиенту</span></label>
+          <label><input type="radio" name="docType" value="smeta"><span>Смета закупки</span></label>
+        </div>
+
+        <div class="grid-2">
+          <label class="field">
+            <span class="field-label">Номер</span>
+            <input id="f-number" data-key="number" autocomplete="off" placeholder="1">
+          </label>
+          <label class="field">
+            <span class="field-label">Дата</span>
+            <input id="f-date" data-key="date" type="date">
+          </label>
+          <label class="field field-wide">
+            <span class="field-label" id="l-from">Исполнитель</span>
+            <input id="f-from" data-key="from" autocomplete="organization">
+          </label>
+          <label class="field field-wide">
+            <span class="field-label" id="l-to">Клиент</span>
+            <input id="f-to" data-key="to" autocomplete="off">
+          </label>
+        </div>
+      </section>
+
+      <!-- 2. Позиции -->
+      <section class="card" aria-labelledby="h-items">
+        <div class="card-head">
+          <h2 id="h-items">Позиции</h2>
+          <span class="hint">Enter — следующее поле, в последней цене — новая строка</span>
+        </div>
+
+        <div class="items-head" aria-hidden="true">
+          <span class="c">№</span>
+          <span>Наименование</span>
+          <span class="r">Кол-во</span>
+          <span>Ед.</span>
+          <span class="r" id="h-price">Цена</span>
+          <span class="r" id="h-sum">Сумма</span>
+          <span></span>
+        </div>
+        <div id="items" class="items"></div>
+        <p class="empty" id="items-empty" hidden>Пока нет позиций — добавьте первую.</p>
+
+        <button type="button" class="btn btn-add" id="btn-add">+ Добавить позицию</button>
+
+        <datalist id="units">
+          <option value="шт"></option>
+          <option value="усл."></option>
+          <option value="ч"></option>
+          <option value="м"></option>
+          <option value="м²"></option>
+          <option value="м³"></option>
+          <option value="кг"></option>
+          <option value="л"></option>
+          <option value="упак."></option>
+          <option value="компл."></option>
+        </datalist>
+      </section>
+
+      <!-- 3. Итоги -->
+      <section class="card" aria-labelledby="h-totals">
+        <h2 id="h-totals">Итоги</h2>
+        <div class="totals-layout">
+          <div class="totals-fields">
+            <div class="grid-3">
+              <label class="field">
+                <span class="field-label">Скидка, %</span>
+                <input id="f-discount" data-key="discount" inputmode="decimal" autocomplete="off" placeholder="0">
+              </label>
+              <label class="field">
+                <span class="field-label">НДС, %</span>
+                <input id="f-vat" data-key="vat" inputmode="decimal" autocomplete="off" placeholder="0 — без НДС">
+              </label>
+              <label class="field">
+                <span class="field-label">Валюта</span>
+                <select id="f-currency" data-key="currency">
+                  <option value="₽">₽ рубль</option>
+                  <option value="₸">₸ тенге</option>
+                  <option value="сум">сум</option>
+                  <option value="BYN">BYN</option>
+                  <option value="$">$ доллар</option>
+                  <option value="€">€ евро</option>
+                </select>
+              </label>
+            </div>
+            <label class="check">
+              <input type="checkbox" id="f-vat-incl" data-key="vatIncluded">
+              <span>Цены уже включают НДС</span>
+            </label>
+          </div>
+          <dl class="totals" id="totals" aria-live="polite"></dl>
+        </div>
+
+        <label class="field">
+          <span class="field-label">Комментарий / условия</span>
+          <textarea id="f-note" data-key="note" rows="3" placeholder="Срок выполнения — 5 рабочих дней. Предложение действует 14 дней."></textarea>
+        </label>
+      </section>
+    </main>
+
+    <!-- 4. Отправка -->
+    <div class="actionbar">
+      <div class="actionbar-total">
+        <span>Итого</span>
+        <strong id="sticky-total">0</strong>
+      </div>
+      <div class="actionbar-buttons">
+        <button type="button" class="btn btn-primary" id="btn-pdf" title="Откроется окно печати — выберите «Сохранить как PDF»">Сохранить PDF</button>
+        <button type="button" class="btn btn-wa" id="btn-wa">WhatsApp</button>
+        <button type="button" class="btn btn-tg" id="btn-tg">Telegram</button>
+        <button type="button" class="btn" id="btn-copy">Копировать текст</button>
+        <button type="button" class="btn" id="btn-share" hidden>Поделиться</button>
+      </div>
+    </div>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  </div>
+
+  <!-- Версия для печати / PDF: заполняется из app.js -->
+  <section id="print" class="print-only"></section>
+
+  <script src="app.js"></script>
+</body>
+</html>
